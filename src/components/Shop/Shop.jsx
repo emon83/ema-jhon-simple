@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { addToDb, getShoppingCart } from "../../utilities/fakedb";
+import {
+  addToDb,
+  deleteShoppingCart,
+  getShoppingCart,
+} from "../../utilities/fakedb";
 import Cart from "../Cart/Cart";
 import Product from "../Product/Product";
 import "./Shop.css";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
 
-  const [cart, setCart] = useState([])
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     fetch("products.json")
@@ -16,7 +23,7 @@ const Shop = () => {
   }, []);
 
   useEffect(() => {
-    console.log( 'Products', products);
+    //console.log( 'Products', products);
     const storedCart = getShoppingCart();
     const saveCart = [];
     //console.log(storedCart);
@@ -26,7 +33,7 @@ const Shop = () => {
       //console.log(id);
 
       //step-02: get product from products state by using id
-      const addedProduct = products.find(product => product.id === id);
+      const addedProduct = products.find((product) => product.id === id);
       //console.log(addedProduct);
 
       if (addedProduct) {
@@ -38,45 +45,58 @@ const Shop = () => {
         saveCart.push(addedProduct);
       }
       console.log(addedProduct);
-
     }
     //step-05. save the cart
     setCart(saveCart);
-  } , [products]);
+  }, [products]);
 
-  const handleAddToCart = (product) =>{
+  const handleAddToCart = (product) => {
     //cart.push(product);
 
     let newCart = [];
-    //(advance)if product dose not exist in the cart then set quantity = 1;  if exist update quantity by 1.  
-     const exist = cart.find(pd => pd.id === product.id);
+    //(advance)if product dose not exist in the cart then set quantity = 1;  if exist update quantity by 1.
+    const exist = cart.find((pd) => pd.id === product.id);
     if (!exist) {
       product.quantity = 1;
-       newCart = [...cart, product];
-    }else{
+      newCart = [...cart, product];
+    } else {
       exist.quantity = exist.quantity + 1;
-      const remaining = cart.filter(pd => pd.id !== product.id);
+      const remaining = cart.filter((pd) => pd.id !== product.id);
       newCart = [...remaining, exist];
     }
 
     setCart(newCart);
-    addToDb(product.id)
-}
+    addToDb(product.id);
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+    deleteShoppingCart();
+  };
 
   return (
     <div className="shop__container">
       <div className="products__container">
         {/* <h2>Products coming here: {products.length}</h2> */}
         {products.map((product) => (
-          <Product 
-            key={product.id} 
+          <Product
+            key={product.id}
             product={product}
             handleAddToCart={handleAddToCart}
           ></Product>
         ))}
       </div>
       <div className="cart__container">
-        <Cart cart={cart}/>
+        <Cart 
+        cart={cart} 
+        handleClearCart={handleClearCart}
+        >
+          <Link to="/orders">
+            <button className="btn__proceed">Review Order
+            <FontAwesomeIcon className="right__arrow"  icon={faArrowRight} />
+            </button>
+          </Link>
+        </Cart>
       </div>
     </div>
   );
