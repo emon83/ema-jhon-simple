@@ -26,3 +26,12 @@
 .right__arrow{
     font-size: 21px;
 }
+
+.pagination {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.pagination .selected {
+    background-color: #FF9900;
+}
